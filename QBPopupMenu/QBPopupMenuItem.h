@@ -15,6 +15,7 @@
 
 @property (nonatomic, copy, readonly) NSString *title;
 @property (nonatomic, copy, readonly) UIImage *image;
+@property (nonatomic, assign) BOOL separator;
 
 + (instancetype)itemWithTitle:(NSString *)title target:(id)target action:(SEL)action;
 + (instancetype)itemWithImage:(UIImage *)image target:(id)target action:(SEL)action;

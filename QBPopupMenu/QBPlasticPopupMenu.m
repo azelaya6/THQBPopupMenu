@@ -291,7 +291,7 @@
     // Highlight
     CGContextSaveGState(context); {
         CGMutablePathRef path = [self headPathInRect:CGRectMake(rect.origin.x + 1, rect.origin.y + 1, rect.size.width - 1, rect.size.height - 2)
-cornerRadius:cornerRadius - 1];
+                                        cornerRadius:cornerRadius - 1];
         CGContextAddPath(context, path);
         
         if (highlighted) {

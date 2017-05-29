@@ -44,9 +44,12 @@ typedef NS_ENUM(NSUInteger, QBPopupMenuArrowDirection) {
 @property (nonatomic, assign) QBPopupMenuArrowDirection arrowDirection;
 @property (nonatomic, assign) UIEdgeInsets popupMenuInsets;
 @property (nonatomic, assign) CGFloat margin;
+@property (nonatomic, readonly) CGRect targetRect;
 
 @property (nonatomic, strong) UIColor *color;
 @property (nonatomic, strong) UIColor *highlightedColor;
+
+@property (nonatomic) BOOL hideArrow;
 
 + (instancetype)popupMenuWithItems:(NSArray *)items;
 - (instancetype)initWithItems:(NSArray *)items;
@@ -58,6 +61,7 @@ typedef NS_ENUM(NSUInteger, QBPopupMenuArrowDirection) {
 // NOTE: When subclassing this class, use these methods to customize the appearance.
 + (Class)itemViewClass;
 + (Class)pagenatorViewClass;
+- (void)updatePopupMenuFrameAndArrowPosition;
 
 - (CGMutablePathRef)arrowPathInRect:(CGRect)rect direction:(QBPopupMenuArrowDirection)direction CF_RETURNS_RETAINED;
 - (CGMutablePathRef)headPathInRect:(CGRect)rect cornerRadius:(CGFloat)cornerRadius CF_RETURNS_RETAINED;

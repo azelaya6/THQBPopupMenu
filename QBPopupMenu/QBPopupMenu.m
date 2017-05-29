@@ -20,7 +20,6 @@ static const NSTimeInterval kQBPopupMenuAnimationDuration = 0.2;
 @property (nonatomic, strong) QBPopupMenuOverlayView *overlayView;
 
 @property (nonatomic, weak) UIView *view;
-@property (nonatomic, assign) CGRect targetRect;
 
 @property (nonatomic, assign) NSUInteger page;
 @property (nonatomic, assign) QBPopupMenuArrowDirection actualArrorDirection;
@@ -61,15 +60,15 @@ static const NSTimeInterval kQBPopupMenuAnimationDuration = 0.2;
         
         // Property settings
         self.items = items;
-        self.height = 36;
-        self.cornerRadius = 8;
+        self.height = 44;
+        self.cornerRadius = 4;
         self.arrowSize = 9;
         self.arrowDirection = QBPopupMenuArrowDirectionDefault;
         self.popupMenuInsets = UIEdgeInsetsMake(10, 10, 10, 10);
         self.margin = 2;
         
-        self.color = [[UIColor blackColor] colorWithAlphaComponent:0.8];
-        self.highlightedColor = [[UIColor darkGrayColor] colorWithAlphaComponent:0.8];
+        self.color = [UIColor colorWithRed:36/255.f green:52/255.f blue:81/255.f alpha:1.0f];
+        self.highlightedColor = self.color;
     }
     
     return self;
@@ -106,7 +105,7 @@ static const NSTimeInterval kQBPopupMenuAnimationDuration = 0.2;
     }
     
     self.view = view;
-    self.targetRect = targetRect;
+    _targetRect = targetRect;
     
     // Decide arrow direction
     QBPopupMenuArrowDirection arrowDirection = self.arrowDirection;
@@ -140,11 +139,10 @@ static const NSTimeInterval kQBPopupMenuAnimationDuration = 0.2;
             break;
             
         case QBPopupMenuArrowDirectionLeft:
-            maximumWidth = targetRect.origin.x - self.popupMenuInsets.left;
+            maximumWidth = view.bounds.size.width - targetRect.origin.x - self.popupMenuInsets.left;
             break;
-            
         case QBPopupMenuArrowDirectionRight:
-            maximumWidth = view.bounds.size.width - (targetRect.origin.x + targetRect.size.width + self.popupMenuInsets.right);
+            maximumWidth = targetRect.origin.x - self.popupMenuInsets.left;
             break;
             
         default:
@@ -239,7 +237,7 @@ static const NSTimeInterval kQBPopupMenuAnimationDuration = 0.2;
 
 - (void)updateWithTargetRect:(CGRect)targetRect
 {
-    self.targetRect = targetRect;
+    _targetRect = targetRect;
     
     [self updatePopupMenuFrameAndArrowPosition];
     [self updatePopupMenuImage];
@@ -374,8 +372,9 @@ static const NSTimeInterval kQBPopupMenuAnimationDuration = 0.2;
         height += self.arrowSize;
     }
     
+    NSUInteger count = self.visibleItemViews.count;
     CGFloat offset = 0;
-    for (NSInteger i = 0; i < self.visibleItemViews.count; i++) {
+    for (NSInteger i = 0; i < count; i++) {
         QBPopupMenuItemView *itemView = [self.visibleItemViews objectAtIndex:i];
         
         // Clear state
@@ -404,9 +403,14 @@ static const NSTimeInterval kQBPopupMenuAnimationDuration = 0.2;
             width += self.arrowSize;
         }
         
-        itemView.frame = CGRectMake(offset, 0, width, height);
+        CGFloat padding = 0;
+        if (i == count-1) {
+            padding = 4;
+        }
         
-        offset += width;
+        itemView.frame = CGRectMake(offset-padding, 0, width, height);
+        
+        offset += width-1;
     }
 }
 
@@ -793,24 +797,26 @@ static const NSTimeInterval kQBPopupMenuAnimationDuration = 0.2;
 
 - (void)drawArrowInRect:(CGRect)rect direction:(QBPopupMenuArrowDirection)direction highlighted:(BOOL)highlighted
 {
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    
-    // Arrow
-    CGContextSaveGState(context); {
-        CGMutablePathRef path = [self arrowPathInRect:rect direction:direction];
-        CGContextAddPath(context, path);
+    if (self.hideArrow == NO) {
+        CGContextRef context = UIGraphicsGetCurrentContext();
         
-        UIColor *color = highlighted ? self.highlightedColor : self.color;
-        CGContextSetFillColorWithColor(context, [color CGColor]);
-        CGContextFillPath(context);
+        // Arrow
+        CGContextSaveGState(context); {
+            CGMutablePathRef path = [self arrowPathInRect:rect direction:direction];
+            CGContextAddPath(context, path);
+            
+            UIColor *color = highlighted ? self.highlightedColor : self.color;
+            CGContextSetFillColorWithColor(context, [color CGColor]);
+            CGContextFillPath(context);
+            
+            CGPathRelease(path);
+        } CGContextRestoreGState(context);
         
-        CGPathRelease(path);
-    } CGContextRestoreGState(context);
-    
-    // Separator
-    if (direction == QBPopupMenuArrowDirectionDown || direction == QBPopupMenuArrowDirectionUp) {
-        for (QBPopupMenuItemView *itemView in self.visibleItemViews) {
-            [self drawSeparatorInRect:CGRectMake(itemView.frame.origin.x + itemView.frame.size.width - 1, rect.origin.y, 1, rect.size.height)];
+        // Separator
+        if (direction == QBPopupMenuArrowDirectionDown || direction == QBPopupMenuArrowDirectionUp) {
+            for (QBPopupMenuItemView *itemView in self.visibleItemViews) {
+                [self drawSeparatorInRect:CGRectMake(itemView.frame.origin.x + itemView.frame.size.width - 1, rect.origin.y, 1, rect.size.height)];
+            }
         }
     }
 }

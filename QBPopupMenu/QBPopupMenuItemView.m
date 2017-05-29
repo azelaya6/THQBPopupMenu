@@ -98,9 +98,6 @@
     if (self.item.target && self.item.action) {
         [self.item.target performSelector:self.item.action withObject:nil afterDelay:0];
     }
-    
-    // Close popup menu
-    [self.popupMenu dismissAnimated:YES];
 }
 
 
@@ -118,8 +115,11 @@
 - (CGSize)sizeThatFits:(CGSize)size
 {
     CGSize buttonSize = [self.button sizeThatFits:CGSizeZero];
-    buttonSize.width += 10 * 2;
-    
+    buttonSize.width = 44;
+    if (self.item.separator == YES) {
+        CGFloat separatorWidth = MAX(self.button.currentImage.size.width, 2);
+        buttonSize.width = separatorWidth;
+    }
     return buttonSize;
 }
 

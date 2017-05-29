@@ -34,5 +34,12 @@
     }
 }
 
-
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+{
+    UIView *hitView = [super hitTest:point withEvent:event];
+    if ([hitView isEqual:self]) {
+        hitView = nil;
+    }
+    return hitView;
+}
 @end
